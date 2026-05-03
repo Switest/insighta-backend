@@ -4,7 +4,7 @@ import jwt
 import os
 import requests
 import logging
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify, make_response, redirect
 from functools import wraps
 from datetime import datetime, timedelta, timezone
 from flask_cors import CORS
@@ -21,7 +21,7 @@ app = Flask(__name__)
 # Your GitHub Credentials
 GITHUB_CLIENT_ID = "Ov23lioOuo3pSVfCqH0y"
 GITHUB_CLIENT_SECRET = "c143b6b759689b0a9599652d0a8957d1697b615f"
-SECRET_KEY = "a_very_long_and_extremely_secret_key_12345"
+SECRET_KEY = "7ecf64abdb6028ba30c4da7c9ba6d90412d34a78fba5ca9686b8b3a3756125a4"
 
 # --- MIDDLEWARE ---
 CORS(app, supports_credentials=True, origins=[
@@ -96,6 +96,17 @@ def require_auth(role=None):
     return decorator
 
 # --- ROUTES ---
+
+@app.route('/api/v1/auth/github', methods=['GET'])
+def github_login():
+    """Redirects user to GitHub for OAuth authentication"""
+    github_auth_url = (
+        f"https://github.com/login/oauth/authorize"
+        f"?client_id={GITHUB_CLIENT_ID}"
+        f"&redirect_uri=http://127.0.0.1:5000/api/v1/auth/callback"
+        f"&scope=read:user"
+    )
+    return redirect(github_auth_url)
 
 @app.route('/api/v1/auth/callback', methods=['GET'])
 def github_callback():
